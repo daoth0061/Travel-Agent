@@ -5,35 +5,40 @@ from tools.rag_tools import TravelRAGTools
 from core.config import settings
 
 class EnhancedFoodAgent:
-    def __init__(self, rag_tools: TravelRAGTools):
+    def __init__(self, llm, rag_tools: TravelRAGTools):
         self.rag_tools = rag_tools
         self.agent = Agent(
             role="🍜 Chuyên Gia Ẩm Thực với RAG",
-            goal="Sử dụng RAG để gợi ý 2 món đặc sản phù hợp nhất.",
-            backstory="Food blogger 10 năm kinh nghiệm, dùng RAG để tìm thông tin ẩm thực.",
-            llm=ChatOpenAI(model=settings["models"]["gpt_35"], 
-                           temperature=0.3,
-                           openai_api_key=os.getenv("OPENAI_API_KEY")),
+            goal="Sử dụng RAG để tìm và gợi ý 2 món đặc sản phù hợp nhất dựa trên yêu cầu của khách.",
+            backstory="Food blogger chuyên nghiệp với 10 năm kinh nghiệm, sử dụng RAG để tìm kiếm thông tin chính xác về ẩm thực địa phương và khẩu vị khách hàng.",
+            llm=llm,
+            # verbose=True, # REMOVED: verbose from agent, set at Crew level
             allow_delegation=False,
-            tools=[self.rag_tools.food_search, self.rag_tools.general_search]
+            tools=[
+                self.rag_tools.food_search,
+                self.rag_tools.general_search
+            ]
         )
 
     def create_task(self, request: str, dest_name: str) -> Task:
         desc = f"""
-            Yêu cầu: "{request}"
+            Yêu cầu của khách: "{request}"
             Điểm đến: {dest_name}
 
             Nhiệm vụ:
-            1. Dùng `food_search` để tìm món ăn tại {dest_name}.
-            2. Phân tích khẩu vị từ yêu cầu (cay, ngọt, truyền thống...).
-            3. Chọn 2 món phù hợp, mô tả hương vị và gợi ý quán/giá.
+            1. Sử dụng tool `food_search` để tìm thông tin về các món ăn đặc sản tại {dest_name} liên quan đến yêu cầu của khách.
+            2. Phân tích khẩu vị và sở thích của khách từ yêu cầu (ví dụ: thích ăn cay, thích đồ ngọt, muốn thử món truyền thống, món ăn đường phố...).
+            3. Chọn 2 món đặc sản phù hợp nhất dựa trên thông tin RAG và sở thích đã phân tích.
+            4. Đối với mỗi món ăn, mô tả hương vị chính và gợi ý các quán ăn nổi tiếng hoặc khoảng giá cả nếu có thông tin.
 
-            Format:
-            1. [Món] – [Hương vị] – [Quán/Giá]
-            2. [Món] – [Hương vị] – [Quán/Giá]
-            """
+            Trả lời theo format:
+            1. [Món ăn] – [Mô tả hương vị chính] – [Gợi ý quán/khoảng giá cả]
+            2. [Món ăn] – [Mô tả hương vị chính] – [Gợi ý quán/khoảng giá cả]
+
+            Trả lời bằng tiếng Việt.
+        """
         return Task(
             description=desc,
             agent=self.agent,
-            expected_output="Danh sách 2 món với mô tả và quán/giá."
+            expected_output="Danh sách 2 món đặc sản được gợi ý với mô tả hương vị và thông tin quán/giá cả."
         )

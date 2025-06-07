@@ -2,4 +2,4 @@
 .env
 
 # Vector database files
-data/chroma_travel_db/
+data/chroma_travel/

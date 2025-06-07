@@ -5,4 +5,5 @@ rag_config:
   chunk_size: 500
   chunk_overlap: 50
   top_k: 5
-chroma_db_path: "data/chroma_travel_db"
+  embedding_model: "text-embedding-3-small"
+chroma_path: "data/chroma_travel"
