@@ -3,10 +3,6 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from agents.orchestrator import EnhancedTravelOrchestrator
 
-
-
-
-
 def main():
     orchestrator = EnhancedTravelOrchestrator()
     # user_query = "Tôi muốn đi du lịch Hà Nội 3 ngày, muốn khám phá văn hóa lịch sử và thử các món ăn truyền thống."
