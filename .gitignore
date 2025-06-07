@@ -3,3 +3,6 @@
 
 # Vector database files
 data/chroma_travel/
+
+# Ignore Python cache files
+__pycache__/
