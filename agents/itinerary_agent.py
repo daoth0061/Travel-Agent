@@ -1,3 +1,4 @@
+import os
 from crewai import Agent, Task
 from langchain_openai import ChatOpenAI
 from tools.rag_tools import TravelRAGTools
@@ -11,7 +12,9 @@ class EnhancedItineraryAgent:
             role="📅 Chuyên Gia Lịch Trình với RAG",
             goal="Tạo lịch trình chi tiết tích hợp địa điểm và ẩm thực.",
             backstory="Điều phối viên tour 12 năm kinh nghiệm, dùng RAG để tối ưu lịch trình.",
-            llm=ChatOpenAI(model=settings["models"]["gpt_4o_mini"], temperature=0.25),
+            llm=ChatOpenAI(model=settings["models"]["gpt_4o_mini"], 
+                           temperature=0.25,
+                           openai_api_key=os.getenv("OPENAI_API_KEY")),
             allow_delegation=False,
             tools=[self.rag_tools.general_search, self.rag_tools.location_search, self.rag_tools.food_search]
         )

@@ -2,6 +2,7 @@ from crewai import Agent, Task
 from langchain_openai import ChatOpenAI
 from tools.rag_tools import TravelRAGTools
 from core.config import settings
+import os
 
 class EnhancedLocationAgent:
     def __init__(self, rag_tools: TravelRAGTools):
@@ -10,7 +11,9 @@ class EnhancedLocationAgent:
             role="🗺️ Chuyên Gia Địa Điểm với RAG",
             goal="Sử dụng RAG để đề xuất 3 điểm tham quan phù hợp nhất.",
             backstory="Chuyên gia du lịch 15 năm kinh nghiệm, dùng RAG để tìm thông tin chính xác.",
-            llm=ChatOpenAI(model=settings["models"]["gpt_35"], temperature=0.3),
+            llm=ChatOpenAI(model=settings["models"]["gpt_35"], 
+                           temperature=0.3,
+                           openai_api_key=os.getenv("OPENAI_API_KEY")),
             allow_delegation=False,
             tools=[self.rag_tools.location_search, self.rag_tools.general_search]
         )

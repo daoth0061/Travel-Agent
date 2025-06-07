@@ -1,3 +1,4 @@
+import os
 from crewai import Agent, Task
 from langchain_openai import ChatOpenAI
 from tools.rag_tools import TravelRAGTools
@@ -10,7 +11,9 @@ class EnhancedFoodAgent:
             role="🍜 Chuyên Gia Ẩm Thực với RAG",
             goal="Sử dụng RAG để gợi ý 2 món đặc sản phù hợp nhất.",
             backstory="Food blogger 10 năm kinh nghiệm, dùng RAG để tìm thông tin ẩm thực.",
-            llm=ChatOpenAI(model=settings["models"]["gpt_35"], temperature=0.3),
+            llm=ChatOpenAI(model=settings["models"]["gpt_35"], 
+                           temperature=0.3,
+                           openai_api_key=os.getenv("OPENAI_API_KEY")),
             allow_delegation=False,
             tools=[self.rag_tools.food_search, self.rag_tools.general_search]
         )
