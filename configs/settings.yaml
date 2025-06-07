@@ -1,0 +1,8 @@
+models:
+  gpt_35: "gpt-3.5-turbo"
+  gpt_4o_mini: "gpt-4o-mini"
+rag_config:
+  chunk_size: 500
+  chunk_overlap: 50
+  top_k: 5
+chroma_db_path: "data/chroma_travel_db"

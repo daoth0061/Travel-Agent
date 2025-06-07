@@ -1,0 +1,6 @@
+crewai
+langchain
+langchain-openai
+langchain-chroma
+pydantic
+pyyaml
