@@ -1,1 +1,5 @@
+# API keys or configs
 .env
+
+# Vector database files
+data/chroma_travel_db/
