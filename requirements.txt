@@ -5,3 +5,4 @@ langchain-chroma
 pydantic
 pyyaml
 python-dotenv
+requests  # Added for OpenWeatherMap API calls
