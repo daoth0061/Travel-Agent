@@ -22,7 +22,7 @@ class AdvancedItineraryAgent:
         self.rag_tools = rag_tools
         self.food_agent = food_agent
         self.location_agent = location_agent
-          self.agent = Agent(
+        self.agent = Agent(
             role="📅 Chuyên Gia Lịch Trình Du Lịch Cao Cấp",
             goal="Tạo lịch trình du lịch chi tiết và được tối ưu hóa bằng cách tổng hợp thông tin từ các chuyên gia địa điểm và ẩm thực, có thể tích hợp dữ liệu thời tiết real-time để đưa ra kế hoạch hoàn hảo.",
             backstory="Chuyên gia lập kế hoạch du lịch với 15 năm kinh nghiệm, được đào tạo để tạo ra những lịch trình cân bằng giữa tham quan, ẩm thực và nghỉ ngơi. Có khả năng điều chỉnh kế hoạch dựa trên thời tiết thực tế và đảm bảo logic di chuyển hợp lý.",
