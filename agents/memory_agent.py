@@ -148,3 +148,9 @@ class MemoryAgent:
             })
         except FileNotFoundError:
             pass  # Keep empty history if file doesn't exist
+    
+    def update_user_preferences(self, preferences: Dict[str, Any]):
+        """Update user preferences in the current context."""
+        if not self.user_context.get("preferences"):
+            self.user_context["preferences"] = {}
+        self.user_context["preferences"].update(preferences)

@@ -59,21 +59,21 @@ class MultiAgentTravelOrchestrator:
         Implements the complete workflow: intent classification → context analysis → agent routing
         """
         print(f"🔍 Processing query: {user_query}")
-        
-        # Step 1: Get relevant context from memory
-        context = self.memory_agent.get_relevant_context(user_query)
-        print(f"📚 Context analysis: {'Follow-up' if context.get('is_follow_up') else 'New query'}")
-        
-        # Step 2: Classify intent
+
+        # Step 1: Classify intent
         intent = classify_intent(user_query)
         print(f"🎯 Detected intent: {intent}")
-        
+
+        # Step 2: Get relevant context from memory
+        context = self.memory_agent.get_relevant_context(user_query, intent)
+        print(f"📚 Context analysis: {'Follow-up' if context.get('is_follow_up') else 'New query'}")
+
         # Step 3: Route to appropriate agent
         response = self._route_to_agent(user_query, intent, context)
-        
+
         # Step 4: Update memory with interaction
         self._update_memory(user_query, intent, response, context)
-        
+
         return response
     
     def _route_to_agent(self, query: str, intent: str, context: Dict[str, Any]) -> str:
@@ -237,8 +237,8 @@ class MultiAgentTravelOrchestrator:
             user_query=query,
             intent=intent,
             agent_used=agent_used,
-            response=response[:500] + "..." if len(response) > 500 else response,  # Truncate for memory
-            context=interaction_context
+            result=response[:500] + "..." if len(response) > 500 else response,  # Truncate for memory
+            extracted_info=interaction_context
         )
         
         # Update user preferences

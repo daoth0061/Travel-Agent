@@ -10,7 +10,7 @@ from core.config import settings
 import os
 
 
-class LocationAgent:
+class EnhancedLocationAgent:
     """
     LocationAgent: Specializes in sightseeing recommendations using RAG system.
     Retrieves specified number of top-rated attractions and points of interest.

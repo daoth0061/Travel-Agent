@@ -10,7 +10,7 @@ from tools.rag_tools import TravelRAGTools
 from core.config import settings
 
 
-class FoodAgent:
+class EnhancedFoodAgent:
     """
     FoodAgent: Specializes in food recommendations using RAG system.
     Retrieves specified number of top-rated local dishes and restaurants.
