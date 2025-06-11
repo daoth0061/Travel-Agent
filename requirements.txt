@@ -5,4 +5,7 @@ langchain-chroma
 pydantic
 pyyaml
 python-dotenv
-requests  # Added for OpenWeatherMap API calls
+requests  # For WeatherAPI and Booking API calls
+thefuzz[speedup]  # For fuzzy string matching (destination detection)
+dateparser  # For intelligent date parsing
+pandas  # For data manipulation

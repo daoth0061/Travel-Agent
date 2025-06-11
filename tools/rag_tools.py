@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from crewai.tools import BaseTool
 from tools.vector_store import TravelRAGSystem
-from tools.utils_tool import RealtimeWeatherTool
+from tools.utils_tool import RealtimeWeatherTool, WeatherRecommendationTool
 from typing import Any
 
 class LocationSearchInput(BaseModel):
@@ -87,3 +87,4 @@ class TravelRAGTools:
         self.tips_search = TipsSearchTool(rag_system=rag_system)
         self.general_search = GeneralSearchTool(rag_system=rag_system)
         self.weather_search = RealtimeWeatherTool()  # Add real-time weather tool
+        self.weather_recommendation = WeatherRecommendationTool()  # Add weather recommendation tool
