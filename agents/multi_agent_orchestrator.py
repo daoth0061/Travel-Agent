@@ -66,9 +66,7 @@ class MultiAgentTravelOrchestrator:
 
         # Step 2: Get relevant context from memory
         context = self.memory_agent.get_relevant_context(user_query, intent)
-        print(f"📚 Context analysis: {'Follow-up' if context.get('is_follow_up') else 'New query'}")
-
-        # Step 3: Route to appropriate agent
+        print(f"📚 Context analysis: {'Follow-up' if context.get('is_follow_up') else 'New query'}")        # Step 3: Route to appropriate agent
         response = self._route_to_agent(user_query, intent, context)
 
         # Step 4: Update memory with interaction
@@ -89,27 +87,32 @@ class MultiAgentTravelOrchestrator:
                 return self._handle_itinerary_query(query, context)
             elif intent == "book":
                 return self._handle_booking_query(query, context)
+            elif intent == "weather":
+                return self._handle_weather_query(query, context)
             else:  # intent == "other"
                 return self._handle_general_query(query, context)
         except Exception as e:
             print(f"❌ Error in agent routing: {e}")
             return f"Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn: {str(e)}"
-    
+
     def _handle_food_query(self, query: str, context: Dict[str, Any]) -> str:
         """Handle food-related queries using FoodAgent"""
         print("🍽️ Routing to FoodAgent...")
-        
         # Extract or use context destination
         destination = detect_destination(query)
+        print(f"🔍 Detected destination from query: {destination}")
         if not destination and context.get("current_context", {}).get("current_destination"):
             destination = context["current_context"]["current_destination"]
+            print(f"📍 Using context destination: {destination}")
+        
+        print(f"🎯 Final destination for FoodAgent: {destination}")
         
         if not destination:
             return ("Để tôi có thể gợi ý món ăn tốt nhất, bạn có thể cho tôi biết "
                    "bạn muốn tìm hiểu ẩm thực ở đâu không?")
         
         # Create and execute food task
-        task = self.food_agent.create_task(query, destination)
+        task = self.food_agent.create_task(query, destination, context)
         crew = Crew(
             agents=[self.food_agent.agent],
             tasks=[task],
@@ -123,18 +126,18 @@ class MultiAgentTravelOrchestrator:
     def _handle_location_query(self, query: str, context: Dict[str, Any]) -> str:
         """Handle location/attraction queries using LocationAgent"""
         print("🏛️ Routing to LocationAgent...")
-        
-        # Extract or use context destination
+          # Extract or use context destination
         destination = detect_destination(query)
         if not destination and context.get("current_context", {}).get("current_destination"):
             destination = context["current_context"]["current_destination"]
+            print(f"📍 Using context destination: {destination}")
         
         if not destination:
             return ("Để tôi có thể gợi ý địa điểm tham quan phù hợp, bạn có thể "
                    "cho tôi biết bạn muốn đi đâu không?")
         
         # Create and execute location task
-        task = self.location_agent.create_task(query, destination)
+        task = self.location_agent.create_task(query, destination, context)
         crew = Crew(
             agents=[self.location_agent.agent],
             tasks=[task],
@@ -179,7 +182,7 @@ class MultiAgentTravelOrchestrator:
             )
         
         result = crew.kickoff()
-        return f"📋 **LỊCH TRÌNH DU LỊCH CHI TIẾT**\\n\\n{str(result)}"
+        return f"📋 **LỊCH TRÌNH DU LỊCH CHI TIẾT**\n\n{str(result)}"
     
     def _handle_booking_query(self, query: str, context: Dict[str, Any]) -> str:
         """Handle booking requests using BookingAgent"""
@@ -211,10 +214,42 @@ class MultiAgentTravelOrchestrator:
         result = crew.kickoff()
         return f"💡 **THÔNG TIN DU LỊCH TỔNG QUÁT**\\n\\n{str(result)}"
     
+    def _handle_weather_query(self, query: str, context: Dict[str, Any]) -> str:
+        """Handle weather queries using weather tools directly"""
+        print("🌤️ Routing to Weather Service...")
+        
+        # Extract destination from query or context
+        destination = detect_destination(query)
+        if not destination and context.get("current_context", {}).get("current_destination"):
+            destination = context["current_context"]["current_destination"]
+            print(f"📍 Using context destination: {destination}")
+        
+        if not destination:
+            return ("Để tôi có thể cung cấp thông tin thời tiết chính xác, bạn có thể "
+                   "cho tôi biết bạn muốn xem thời tiết ở đâu không?")
+        
+        try:
+            # Use the weather tool directly
+            weather_result = self.rag_tools.weather_search._run(
+                city=destination,
+                days=3  # Default to 3-day forecast
+            )
+            
+            return f"🌤️ **THỜI TIẾT TẠI {destination.upper()}**\\n\\n{weather_result}"
+            
+        except Exception as e:
+            print(f"❌ Weather service error: {e}")
+            return f"Xin lỗi, hiện tại không thể lấy thông tin thời tiết cho {destination}. Vui lòng thử lại sau."
+    
     def _update_memory(self, query: str, intent: str, response: str, context: Dict[str, Any]):
         """Update memory with current interaction"""
         # Extract key information for context
         destination = detect_destination(query)
+        
+        # Don't overwrite existing destination if current query doesn't specify one
+        if not destination and context.get("current_context", {}).get("current_destination"):
+            destination = context["current_context"]["current_destination"]
+        
         preferences = extract_preferences(query)
         
         interaction_context = {
@@ -223,13 +258,13 @@ class MultiAgentTravelOrchestrator:
             "query_length": len(query),
             "response_length": len(response)
         }
-        
-        # Determine which agent was used
+          # Determine which agent was used
         agent_used = {
             "eat": "FoodAgent",
             "visit": "LocationAgent", 
             "plan": "ItineraryAgent",
             "book": "BookingAgent",
+            "weather": "WeatherService",
             "other": "DefaultAgent"
         }.get(intent, "Unknown")
         

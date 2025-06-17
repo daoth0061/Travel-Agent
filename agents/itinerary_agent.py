@@ -3,7 +3,7 @@ Enhanced Itinerary Agent with sophisticated planning scenarios
 Implements PlanningWithoutTime and PlanningWithTime scenarios
 """
 import os
-from crewai import Agent, Task
+from crewai import Agent, Task, Crew, Process
 from langchain_openai import ChatOpenAI
 from tools.rag_tools import TravelRAGTools
 from core.config import settings
@@ -25,9 +25,12 @@ class AdvancedItineraryAgent:
         self.agent = Agent(
             role="📅 Chuyên Gia Lịch Trình Du Lịch Cao Cấp",
             goal="Tạo lịch trình du lịch chi tiết và được tối ưu hóa bằng cách tổng hợp thông tin từ các chuyên gia địa điểm và ẩm thực, có thể tích hợp dữ liệu thời tiết real-time để đưa ra kế hoạch hoàn hảo.",
-            backstory="Chuyên gia lập kế hoạch du lịch với 15 năm kinh nghiệm, được đào tạo để tạo ra những lịch trình cân bằng giữa tham quan, ẩm thực và nghỉ ngơi. Có khả năng điều chỉnh kế hoạch dựa trên thời tiết thực tế và đảm bảo logic di chuyển hợp lý.",
+            backstory="""Chuyên gia lập kế hoạch du lịch với 15 năm kinh nghiệm, được đào tạo để tạo ra những lịch trình cân bằng giữa tham quan, ẩm thực và nghỉ ngơi. Có khả năng điều chỉnh kế hoạch dựa trên thời tiết thực tế và đảm bảo logic di chuyển hợp lý.
+            
+            QUAN TRỌNG: Luôn trả lời trực tiếp với lịch trình cuối cùng, KHÔNG bao gồm quá trình suy nghĩ, phân tích, hay các bước 'Thought:', 'Action:' trong câu trả lời. Chỉ đưa ra kết quả lịch trình hoàn chỉnh và chuyên nghiệp.""",
             llm=llm,
             allow_delegation=False,
+            verbose=False,
             tools=[
                 self.rag_tools.general_search,
                 self.rag_tools.location_search,
@@ -80,7 +83,7 @@ class AdvancedItineraryAgent:
         }
     
     def get_resources_from_agents(self, destination: str, requirements: Dict[str, int], 
-                                preferences: Dict[str, Any]) -> Dict[str, str]:
+                                preferences: Dict[str, Any], context: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
         """
         Call FoodAgent and LocationAgent to get required resources
         """
@@ -94,21 +97,38 @@ class AdvancedItineraryAgent:
             location_request += f" phù hợp với sở thích {preferences['activity_type']}"
         
         # Get food recommendations
-        food_task = self.food_agent.create_task(food_request, destination)
-        food_result = "Đang lấy thông tin ẩm thực..."  # In real implementation, execute task
+        food_context = dict(context) if context else {}
+        food_context["relevant_history"] = context.get("relevant_history", "") if context else ""
+        food_task = self.food_agent.create_task(food_request, destination, food_context)
+        food_crew = Crew(
+            agents=[self.food_agent.agent],
+            tasks=[food_task],
+            process=Process.sequential,
+            verbose=False
+        )
+        food_result = food_crew.kickoff()
         
         # Get location recommendations  
-        location_task = self.location_agent.create_task(location_request, destination)
-        location_result = "Đang lấy thông tin địa điểm..."  # In real implementation, execute task
+        location_context = dict(context) if context else {}
+        location_context["relevant_history"] = context.get("relevant_history", "") if context else ""
+        location_task = self.location_agent.create_task(location_request, destination, location_context)
+        location_crew = Crew(
+            agents=[self.location_agent.agent],
+            tasks=[location_task],
+            process=Process.sequential,
+            verbose=False
+        )
+        location_result = location_crew.kickoff()
         
         return {
-            "food_info": food_result,
-            "location_info": location_result
+            "food_info": str(food_result),
+            "location_info": str(location_result)
         }
     
     def create_task_planning_without_time(self, request: str, destination: str, 
                                         trip_length: int, preferences: Dict[str, Any],
-                                        resources: Dict[str, str]) -> Task:
+                                        resources: Dict[str, str],
+                                        context: Optional[Dict[str, Any]] = None) -> Task:
         """
         Scenario A: PlanningWithoutTime
         Create itinerary without specific dates, focus on logical flow
@@ -147,7 +167,12 @@ class AdvancedItineraryAgent:
         
         skeleton = "\n".join(skeleton_days)
         
+        relevant_history = context.get("relevant_history", "") if context else ""
         desc = f"""
+            Dựa vào lịch sử trò chuyện sau:
+            ---
+            {relevant_history}
+            ---
             Yêu cầu gốc: "{request}"
             Điểm đến: {destination}
             Số ngày: {trip_length}
@@ -180,9 +205,10 @@ class AdvancedItineraryAgent:
                - Kết hợp tham quan và nghỉ ngơi
             
             5. **Không sử dụng thông tin thời tiết** (vì không có ngày cụ thể)
-            
-            KHUNG LỊCH TRÌNH:
+              KHUNG LỊCH TRÌNH:
             {skeleton}
+            
+            **QUAN TRỌNG: Chỉ trả lời với lịch trình cuối cùng. KHÔNG bao gồm 'Thought:', 'Action:', hay quá trình suy nghĩ trong câu trả lời.**
             
             Trả lời bằng tiếng Việt với lịch trình chi tiết và logic.
         """
@@ -195,7 +221,8 @@ class AdvancedItineraryAgent:
     
     def create_task_planning_with_time(self, request: str, destination: str, 
                                      trip_length: int, time_info: Dict[str, Any],
-                                     preferences: Dict[str, Any], resources: Dict[str, str]) -> Task:
+                                     preferences: Dict[str, Any], resources: Dict[str, str],
+                                     context: Optional[Dict[str, Any]] = None) -> Task:
         """
         Scenario B: PlanningWithTime
         Create itinerary with specific dates and weather integration
@@ -269,7 +296,12 @@ class AdvancedItineraryAgent:
         
         skeleton = "\n".join(skeleton_days)
         
+        relevant_history = context.get("relevant_history", "") if context else ""
         desc = f"""
+            Dựa vào lịch sử trò chuyện sau:
+            ---
+            {relevant_history}
+            ---
             Yêu cầu gốc: "{request}"
             Điểm đến: {destination}
             Số ngày: {trip_length}
@@ -309,9 +341,10 @@ class AdvancedItineraryAgent:
             5. **Áp dụng Logic Plan Overwhelm** (như Planning Without Time)
             
             6. **Bao gồm weather alerts nếu có**
-            
-            KHUNG LỊCH TRÌNH VỚI WEATHER INTEGRATION:
+              KHUNG LỊCH TRÌNH VỚI WEATHER INTEGRATION:
             {skeleton}
+            
+            **QUAN TRỌNG: Chỉ trả lời với lịch trình cuối cùng. KHÔNG bao gồm 'Thought:', 'Action:', hay quá trình suy nghĩ trong câu trả lời.**
             
             Trả lời bằng tiếng Việt với lịch trình được tối ưu hóa hoàn toàn theo thời tiết thực tế.
         """
@@ -332,25 +365,32 @@ class AdvancedItineraryAgent:
         params = self.extract_parameters(request)
         
         destination = params["destination"]
+        print(f"1. 🔄 Complex itinerary planning for {destination}")
         trip_length = params["trip_length"] or 2  # Default to 2 days
         time_info = params["time_info"]
         preferences = params["preferences"]
         
         # Handle missing destination
         if not destination:
-            return self._create_missing_destination_task(request)
-        
+            result = self._create_missing_destination_task(request, context=context)
+            if result["can_detect_destination"]:
+                destination = result["destination"]
+                print(f"2. 🔄 Complex itinerary planning for {destination}")
+            else:
+                # If we cannot detect destination, return the task to ask user
+                return result["task"]
+        print(f"3. 🔄 Complex itinerary planning for {destination}")
         # Step 2: Calculate resource requirements
         requirements = self.calculate_resource_requirements(trip_length)
         
         # Step 3: Get resources from other agents
-        resources = self.get_resources_from_agents(destination, requirements, preferences)
+        resources = self.get_resources_from_agents(destination, requirements, preferences, context=context)
         
         # Step 4: Choose planning scenario
         if time_info:
             # Scenario B: PlanningWithTime
             return self.create_task_planning_with_time(
-                request, destination, trip_length, time_info, preferences, resources
+                request, destination, trip_length, time_info, preferences, resources, context=context
             )
         else:
             # Scenario A: PlanningWithoutTime
@@ -362,12 +402,31 @@ class AdvancedItineraryAgent:
             """
             
             return self.create_task_planning_without_time(
-                request, destination, trip_length, preferences, resources
+                request, destination, trip_length, preferences, resources, context=context
             )
     
-    def _create_missing_destination_task(self, request: str) -> Task:
-        """Handle case when destination is not detected"""
+    def _create_missing_destination_task(self, request: str, context: Optional[Dict[str, Any]] = None) -> Task:
+        """Handle case when destination is not detected. If previous query exists and has a destination, use it."""
+        relevant_history = context.get("relevant_history", "") if context else ""
+        # Try to extract previous destination from recent interactions
+        previous_destination = None
+        if context and "recent_interactions" in context:
+            for interaction in reversed(context["recent_interactions"]):
+                dest = interaction.get("extracted_info", {}).get("destination")
+                if dest:
+                    previous_destination = dest
+                    break
+        if previous_destination:
+            return {
+                "can_detect_destination": True,
+                "destination": previous_destination,
+                "task": None
+            }
         desc = f"""
+            Dựa vào lịch sử trò chuyện sau:
+            ---
+            {relevant_history}
+            ---
             Yêu cầu: "{request}"
             
             VẤN ĐỀ: Không thể xác định điểm đến cụ thể từ yêu cầu.
@@ -379,9 +438,12 @@ class AdvancedItineraryAgent:
             
             Trả lời bằng tiếng Việt, thân thiện và hữu ích.
         """
-        
-        return Task(
+        return {
+            "can_detect_destination": False,
+            "destination": None,
+            "task": Task(
             description=desc,
             agent=self.agent,
             expected_output="Yêu cầu khách cung cấp điểm đến cụ thể và gợi ý các điểm đến phổ biến."
         )
+        }

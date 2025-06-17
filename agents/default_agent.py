@@ -22,19 +22,26 @@ class DefaultAgent:
             tools=[]  # No specific tools needed, relies on LLM knowledge
         )
     
-    def create_task(self, request: str, context: dict = None) -> Task:
+    def create_task(self, request: str, context: dict) -> Task:
         """Create task for handling general queries"""
         
-        context_info = ""
-        if context and context.get("current_context", {}).get("current_destination"):
-            destination = context["current_context"]["current_destination"]
-            context_info = f"\nThông tin bối cảnh: Người dùng đang quan tâm đến {destination}."
+        relevant_history = context.get("relevant_history", "")
+        print(f"Relevant history for default/general task: {relevant_history}")
+        destination = context.get("current_destination", "")
         
+        context_info = ""
+        if destination:
+            context_info = f"\nThông tin bối cảnh: Người dùng đang quan tâm đến {destination}."
+
         desc = f"""
+            Dựa vào lịch sử trò chuyện sau:
+            ---
+            {relevant_history}
+            ---
             Câu hỏi của khách: "{request}"{context_info}
 
             Nhiệm vụ:
-            1. Phân tích câu hỏi để xác định loại thông tin khách cần.
+            1. Phân tích câu hỏi và lịch sử trò chuyện để xác định loại thông tin khách cần.
             2. Cung cấp thông tin chính xác, hữu ích và thực tế về:
                - Tiền tệ và tỷ giá hối đoái
                - Visa và thủ tục nhập cảnh
@@ -44,8 +51,8 @@ class DefaultAgent:
                - Ngôn ngữ và giao tiếp
                - Mẹo và lưu ý an toàn
                - Thông tin chung khác về Việt Nam
-            3. Nếu câu hỏi liên quan đến địa điểm cụ thể, hãy đưa ra lời khuyên chung phù hợp.
-            4. Đưa ra các gợi ý bổ sung hoặc thông tin liên quan có thể hữu ích.
+            3. Nếu câu hỏi liên quan đến địa điểm cụ thể đã được đề cập trong cuộc trò chuyện, hãy đưa ra lời khuyên chung phù hợp.
+            4. Đưa ra các gợi ý bổ sung hoặc thông tin liên quan có thể hữu ích dựa trên toàn bộ cuộc trò chuyện.
             5. Nếu câu hỏi quá cụ thể và cần chuyên gia khác, hãy đề xuất người dùng hỏi cụ thể hơn.
 
             Trả lời bằng tiếng Việt, thân thiện và dễ hiểu.

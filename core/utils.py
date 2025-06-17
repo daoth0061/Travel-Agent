@@ -69,6 +69,22 @@ def detect_destination(query: str) -> Optional[str]:
     """
     query_lower = query.lower()
     
+    # Generic location words that should not be used for destination detection
+    generic_words = {
+        "ở đó", "đó", "đây", "này", "kia", "nơi", "chỗ", "tại", "ở", "trong", 
+        "tại đây", "tại đó", "ở đây", "ở kia", "nơi này", "nơi đó", "chỗ này", "chỗ đó"
+    }
+    
+    # Common Vietnamese words that should NOT be considered destinations
+    common_words = {
+        "đi", "về", "thì", "sao", "gì", "như", "thế", "nào", "có", "là", "của", 
+        "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín", "mười",
+        "ngày", "tuần", "tháng", "năm", "thời", "gian", "lịch", "trình", "chuyến",
+        "tour", "du", "lịch", "phải", "nên", "cần", "muốn", "thích", "tốt",
+        "đẹp", "hay", "nhỉ", "không", "chưa", "rồi", "xong", "được", "bao",
+        "nhiều", "lâu", "xa", "gần", "to", "nhỏ", "lớn", "bé", "cao", "thấp"
+    }
+    
     # Direct match first
     for canonical, aliases in VIETNAMESE_DESTINATIONS.items():
         if canonical in query_lower:
@@ -77,7 +93,7 @@ def detect_destination(query: str) -> Optional[str]:
             if alias in query_lower:
                 return canonical
     
-    # Fuzzy matching for misspellings
+    # Fuzzy matching for misspellings - but exclude generic and common words
     all_destinations = []
     for canonical, aliases in VIETNAMESE_DESTINATIONS.items():
         all_destinations.append(canonical)
@@ -88,13 +104,28 @@ def detect_destination(query: str) -> Optional[str]:
     for i in range(len(words)):
         for j in range(i+1, min(i+4, len(words)+1)):  # 1-3 word combinations
             candidate = " ".join(words[i:j])
-            if len(candidate) >= 3:  # Minimum length
-                match, score = process.extractOne(candidate, all_destinations)
-                if score >= 80:  # High confidence threshold
-                    # Find canonical name
-                    for canonical, aliases in VIETNAMESE_DESTINATIONS.items():
-                        if match == canonical or match in aliases:
-                            return canonical
+            
+            # Skip generic location words and common Vietnamese words
+            if (candidate in generic_words or 
+                candidate in common_words or
+                any(generic in candidate for generic in generic_words) or
+                any(common in candidate for common in common_words)):
+                continue
+                
+            # Skip very short candidates (single letters or two letters)
+            if len(candidate) < 3:
+                continue
+                
+            # Skip candidates that are just numbers
+            if candidate.isdigit():
+                continue
+                
+            match, score = process.extractOne(candidate, all_destinations)
+            if score >= 99:  # Very high threshold to reduce false positives
+                # Find canonical name
+                for canonical, aliases in VIETNAMESE_DESTINATIONS.items():
+                    if match == canonical or match in aliases:
+                        return canonical
     
     return None
 
@@ -113,8 +144,8 @@ def detect_time(query: str) -> Optional[Dict[str, Any]]:
     query_lower = query.lower()
     
     # Configure dateparser for Vietnamese
+    dateparser_languages = ['vi', 'en']
     dateparser_settings = {
-        'LANGUAGES': ['vi', 'en'],
         'DATE_ORDER': 'DMY',
         'RETURN_AS_TIMEZONE_AWARE': False
     }
@@ -193,7 +224,11 @@ def detect_time(query: str) -> Optional[Dict[str, Any]]:
     
     # Try dateparser as fallback
     if not time_info["has_dates"]:
-        parsed_date = dateparser.parse(query, settings=dateparser_settings)
+        parsed_date = dateparser.parse(
+            query, 
+            languages=dateparser_languages, 
+            settings=dateparser_settings
+        )
         if parsed_date and parsed_date > datetime.now():
             time_info["has_dates"] = True
             time_info["start_date"] = parsed_date.strftime("%Y-%m-%d")
@@ -204,11 +239,43 @@ def detect_time(query: str) -> Optional[Dict[str, Any]]:
 def classify_intent(query: str) -> str:
     """
     Classify user intent from query.
-    Returns: 'eat', 'visit', 'plan', 'book', or 'other'
+    Returns: 'eat', 'visit', 'plan', 'book', 'weather', or 'other'
     """
     query_lower = query.lower()
     
-    # Intent keywords
+    # Priority patterns - check these first for high-confidence matches
+    priority_patterns = {
+        'weather': [
+            r'\bweather\b.*\bin\b',  # "weather in ..."
+            r'\bweather\b.*\btomorrow\b',  # "weather ... tomorrow"
+            r'\bweather\b.*\btoday\b',  # "weather ... today"
+            r'\bthời tiết\b',  # Vietnamese weather
+            r'\bdự báo\b',  # Vietnamese forecast
+            r'\bnhiệt độ\b',  # Vietnamese temperature
+            r'\bhow.*\bweather\b',  # "how is the weather"
+            r'\bwhat.*\bweather\b',  # "what is the weather"
+        ],
+        'book': [
+            r'\bbook.*\bhotel\b',
+            r'\bđặt.*\bkhách sạn\b',
+            r'\breservation\b',
+            r'\baccommodation\b',
+        ],
+        'eat': [
+            r'\bfood\b.*\brecommend\b',
+            r'\brestaurant\b.*\brecommend\b',
+            r'\bwhere.*\beat\b',
+            r'\bđặc sản\b',
+        ]
+    }
+    
+    # Check priority patterns first
+    for intent, patterns in priority_patterns.items():
+        for pattern in patterns:
+            if re.search(pattern, query_lower):
+                return intent
+    
+    # Intent keywords for scoring
     intent_keywords = {
         'eat': [
             'ăn', 'món', 'quán', 'nhà hàng', 'food', 'eat', 'restaurant',
@@ -231,13 +298,32 @@ def classify_intent(query: str) -> str:
             'đặt', 'book', 'booking', 'reservation', 'hotel', 'khách sạn',
             'homestay', 'resort', 'phòng', 'room', 'accommodation',
             'lưu trú', 'nghỉ', 'stay'
+        ],
+        'weather': [
+            'weather', 'Weather', 'nhiệt độ', 'temperature', 'mưa', 'rain',
+            'nắng', 'sunny', 'sun', 'cloud', 'mây', 'gió', 'wind',
+            'ẩm ướt', 'humid', 'khô', 'dry', 'lạnh', 'cold', 'nóng', 'hot',
+            'dự báo', 'forecast', 'climate', 'khí hậu', 'như thế nào',
+            'ra sao', 'bao nhiêu độ', 'độ c', 'celsius', 'độ f', 'fahrenheit',
+            'mưa gió', 'stormy', 'bão', 'storm', 'nắng nóng', 'mát mẻ', 'cool',
+            'ấm áp', 'warm', 'se lạnh', 'chilly', 'băng giá', 'freezing',
+            'conditions', 'thời tiết', 'Thời tiết', 'dự báo thời tiết'
         ]
     }
     
-    # Count matches for each intent
+    # Count matches for each intent using word boundaries where possible
     intent_scores = {}
     for intent, keywords in intent_keywords.items():
-        score = sum(1 for keyword in keywords if keyword in query_lower)
+        score = 0
+        for keyword in keywords:
+            # Use word boundaries for better matching
+            if len(keyword) > 2:
+                pattern = r'\b' + re.escape(keyword) + r'\b'
+                if re.search(pattern, query_lower):
+                    score += 1
+            else:
+                if keyword in query_lower:
+                    score += 1
         intent_scores[intent] = score
     
     # Find best match

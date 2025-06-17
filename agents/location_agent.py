@@ -31,31 +31,39 @@ class EnhancedLocationAgent:
             ]
         )
 
-    def create_task(self, request: str, destination: str, quantity: int = None) -> Task:
+    def create_task(self, request: str, destination: str, context: dict = None, quantity: int = None) -> Task:
         """
         Create location recommendation task with specific quantity handling
         
         Args:
             request: User request describing location preferences
             destination: Target destination
+            context: The conversation context.
             quantity: Specific number of location items needed (for itinerary planning)
         """
         
         # Extract quantity from request if not specified
         if quantity is None:
             quantity = self._extract_quantity_from_request(request)
+            
+        relevant_history = context.get("relevant_history", "")
+        print(f"Relavant history for location task: {relevant_history}")
         
         desc = f"""
+            Dựa vào lịch sử trò chuyện sau:
+            ---
+            {relevant_history}
+            ---
             Yêu cầu của khách: "{request}"
             Điểm đến: {destination}
             Số lượng địa điểm cần tìm: {quantity}
 
             Nhiệm vụ:
             1. **BẮT BUỘC: Sử dụng tool `location_search`** để tìm thông tin về các địa điểm tại {destination}.
-               - Tìm kiếm với từ khóa phù hợp từ yêu cầu khách
+               - Tìm kiếm với từ khóa phù hợp từ yêu cầu khách và lịch sử trò chuyện.
                - Ưu tiên các địa điểm nổi tiếng và được đánh giá cao
             
-            2. **Phân tích sở thích du lịch từ yêu cầu:**
+            2. **Phân tích sở thích du lịch từ yêu cầu và lịch sử trò chuyện:**
                - Loại hình: lịch sử/văn hóa, thiên nhiên, thư giãn, phiêu lưu, tâm linh
                - Độ tuổi/thể lực: phù hợp mọi lứa tuổi, cần thể lực, dễ tiếp cận
                - Thời gian: nửa ngày, cả ngày, vài giờ

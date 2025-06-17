@@ -31,13 +31,14 @@ class EnhancedFoodAgent:
             ]
         )
     
-    def create_task(self, request: str, destination: str, quantity: int = None) -> Task:
+    def create_task(self, request: str, destination: str, context: dict = None, quantity: int = None) -> Task:
         """
         Create food recommendation task with specific quantity handling
         
         Args:
             request: User request describing food preferences
             destination: Target destination
+            context: The conversation context.
             quantity: Specific number of food items needed (for itinerary planning)
         """
         
@@ -45,17 +46,24 @@ class EnhancedFoodAgent:
         if quantity is None:
             quantity = self._extract_quantity_from_request(request)
         
+        relevant_history = context.get("relevant_history", "")
+        print(f"Relevant history for food task: {relevant_history}")
+        
         desc = f"""
+            Dựa vào lịch sử trò chuyện sau:
+            ---
+            {relevant_history}
+            ---
             Yêu cầu của khách: "{request}"
             Điểm đến: {destination}
             Số lượng món ăn cần tìm: {quantity}
 
             Nhiệm vụ:
             1. **BẮT BUỘC: Sử dụng tool `food_search`** để tìm thông tin về các món ăn đặc sản tại {destination}.
-               - Tìm kiếm với từ khóa phù hợp từ yêu cầu khách
+               - Tìm kiếm với từ khóa phù hợp từ yêu cầu khách và lịch sử trò chuyện.
                - Ưu tiên các món ăn đặc trưng và được đánh giá cao
             
-            2. **Phân tích sở thích ẩm thực từ yêu cầu:**
+            2. **Phân tích sở thích ẩm thực từ yêu cầu và lịch sử trò chuyện:**
                - Loại hình: truyền thống, đường phố, cao cấp, chay/mặn
                - Khẩu vị: cay, ngọt, chua, đậm đà, nhẹ nhàng
                - Ngân sách: bình dân, trung bình, cao cấp
