@@ -417,9 +417,12 @@ class BookingAgent:
         self.agent = Agent(
             role="🏨 Chuyên Viên Đặt Phòng Khách Sạn",
             goal="Tìm kiếm và đề xuất các lựa chọn lưu trú phù hợp với ngân sách và yêu cầu của khách hàng sử dụng SerpApi Google Hotels API.",
-            backstory="Chuyên viên đặt phòng với 8 năm kinh nghiệm trong ngành khách sạn, có mạng lưới rộng khắp Việt Nam và hiểu rõ nhu cầu đa dạng của du khách từ budget backpacker đến luxury resort. Được trang bị công nghệ SerpApi để tìm kiếm thông tin khách sạn real-time.",
+            backstory="""Chuyên viên đặt phòng với 8 năm kinh nghiệm trong ngành khách sạn, có mạng lưới rộng khắp Việt Nam và hiểu rõ nhu cầu đa dạng của du khách từ budget backpacker đến luxury resort. Được trang bị công nghệ SerpApi để tìm kiếm thông tin khách sạn real-time.
+            
+            QUAN TRỌNG: Luôn trả lời trực tiếp với thông tin khách sạn cuối cùng, KHÔNG bao gồm quá trình suy nghĩ, phân tích, hay các bước 'Thought:', 'Action:', 'I now know the final answer' trong câu trả lời. Chỉ đưa ra kết quả tìm kiếm khách sạn hoàn chỉnh và chuyên nghiệp.""",
             llm=llm,
             allow_delegation=False,
+            verbose=False,
             tools=[SerpApiHotelsTool()]
         )
     
@@ -507,11 +510,12 @@ class BookingAgent:
             • [Phân tích tổng quan về các lựa chọn]
             • [Gợi ý cụ thể dựa trên sở thích và ngân sách]
             • [So sánh ưu nhược điểm]
-            
-            **📞 HƯỚNG DẪN ĐẶT PHÒNG:**
+              **📞 HƯỚNG DẪN ĐẶT PHÒNG:**
             • [Lời khuyên cụ thể cho {destination}]
             • [Platform đặt phòng được đề xuất]
             • [Thời điểm tốt nhất để đặt và mẹo tiết kiệm]
+
+            **QUAN TRỌNG: Chỉ trả lời với thông tin khách sạn cuối cùng. KHÔNG bao gồm 'Thought:', 'Action:', 'I now know the final answer', hay quá trình suy nghĩ trong câu trả lời.**
 
             Trả lời bằng tiếng Việt, chi tiết và hữu ích. Đảm bảo sử dụng tool hotel_search trước khi phân tích.
         """

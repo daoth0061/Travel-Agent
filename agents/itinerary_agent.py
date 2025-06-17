@@ -24,10 +24,9 @@ class AdvancedItineraryAgent:
         self.location_agent = location_agent
         self.agent = Agent(
             role="📅 Chuyên Gia Lịch Trình Du Lịch Cao Cấp",
-            goal="Tạo lịch trình du lịch chi tiết và được tối ưu hóa bằng cách tổng hợp thông tin từ các chuyên gia địa điểm và ẩm thực, có thể tích hợp dữ liệu thời tiết real-time để đưa ra kế hoạch hoàn hảo.",
-            backstory="""Chuyên gia lập kế hoạch du lịch với 15 năm kinh nghiệm, được đào tạo để tạo ra những lịch trình cân bằng giữa tham quan, ẩm thực và nghỉ ngơi. Có khả năng điều chỉnh kế hoạch dựa trên thời tiết thực tế và đảm bảo logic di chuyển hợp lý.
+            goal="Tạo lịch trình du lịch chi tiết và được tối ưu hóa bằng cách tổng hợp thông tin từ các chuyên gia địa điểm và ẩm thực, có thể tích hợp dữ liệu thời tiết real-time để đưa ra kế hoạch hoàn hảo.",            backstory="""Chuyên gia lập kế hoạch du lịch với 15 năm kinh nghiệm, được đào tạo để tạo ra những lịch trình cân bằng giữa tham quan, ẩm thực và nghỉ ngơi. Có khả năng điều chỉnh kế hoạch dựa trên thời tiết thực tế và đảm bảo logic di chuyển hợp lý.
             
-            QUAN TRỌNG: Luôn trả lời trực tiếp với lịch trình cuối cùng, KHÔNG bao gồm quá trình suy nghĩ, phân tích, hay các bước 'Thought:', 'Action:' trong câu trả lời. Chỉ đưa ra kết quả lịch trình hoàn chỉnh và chuyên nghiệp.""",
+            QUAN TRỌNG: Luôn trả lời trực tiếp với lịch trình cuối cùng, KHÔNG bao gồm quá trình suy nghĩ, phân tích, hay các bước 'Thought:', 'Action:' trong câu trả lời. KHÔNG sử dụng markdown code blocks (``` hoặc ```) - chỉ trả lời với text thuần có emoji và định dạng đẹp mắt.""",
             llm=llm,
             allow_delegation=False,
             verbose=False,
@@ -207,8 +206,7 @@ class AdvancedItineraryAgent:
             5. **Không sử dụng thông tin thời tiết** (vì không có ngày cụ thể)
               KHUNG LỊCH TRÌNH:
             {skeleton}
-            
-            **QUAN TRỌNG: Chỉ trả lời với lịch trình cuối cùng. KHÔNG bao gồm 'Thought:', 'Action:', hay quá trình suy nghĩ trong câu trả lời.**
+              **QUAN TRỌNG: Chỉ trả lời với lịch trình cuối cùng. KHÔNG bao gồm 'Thought:', 'Action:', hay quá trình suy nghĩ trong câu trả lời. KHÔNG sử dụng markdown code blocks (``` hoặc ```) - chỉ trả lời với text thuần có emoji và định dạng.**
             
             Trả lời bằng tiếng Việt với lịch trình chi tiết và logic.
         """
@@ -343,8 +341,7 @@ class AdvancedItineraryAgent:
             6. **Bao gồm weather alerts nếu có**
               KHUNG LỊCH TRÌNH VỚI WEATHER INTEGRATION:
             {skeleton}
-            
-            **QUAN TRỌNG: Chỉ trả lời với lịch trình cuối cùng. KHÔNG bao gồm 'Thought:', 'Action:', hay quá trình suy nghĩ trong câu trả lời.**
+              **QUAN TRỌNG: Chỉ trả lời với lịch trình cuối cùng. KHÔNG bao gồm 'Thought:', 'Action:', hay quá trình suy nghĩ trong câu trả lời. KHÔNG sử dụng markdown code blocks (``` hoặc ```) - chỉ trả lời với text thuần có emoji và định dạng.**
             
             Trả lời bằng tiếng Việt với lịch trình được tối ưu hóa hoàn toàn theo thời tiết thực tế.
         """

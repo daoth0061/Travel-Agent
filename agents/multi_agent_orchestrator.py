@@ -121,7 +121,7 @@ class MultiAgentTravelOrchestrator:
         )
         
         result = crew.kickoff()
-        return f"🍜 **GỢI Ý ẨM THỰC TẠI {destination.upper()}**\\n\\n{str(result)}"
+        return f"🍜 **GỢI Ý ẨM THỰC TẠI {destination.upper()}**\n\n{str(result)}"
     
     def _handle_location_query(self, query: str, context: Dict[str, Any]) -> str:
         """Handle location/attraction queries using LocationAgent"""
@@ -146,7 +146,7 @@ class MultiAgentTravelOrchestrator:
         )
         
         result = crew.kickoff()
-        return f"🗺️ **ĐỊA ĐIỂM THAM QUAN TẠI {destination.upper()}**\\n\\n{str(result)}"
+        return f"🗺️ **ĐỊA ĐIỂM THAM QUAN TẠI {destination.upper()}**\n\n{str(result)}"
     
     def _handle_itinerary_query(self, query: str, context: Dict[str, Any]) -> str:
         """Handle itinerary planning using AdvancedItineraryAgent"""
@@ -197,7 +197,7 @@ class MultiAgentTravelOrchestrator:
         )
         
         result = crew.kickoff()
-        return f"🏨 **THÔNG TIN KHÁCH SẠN & ĐẶT PHÒNG**\\n\\n{str(result)}"
+        return f"🏨 **THÔNG TIN KHÁCH SẠN & ĐẶT PHÒNG**\n\n{str(result)}"
     
     def _handle_general_query(self, query: str, context: Dict[str, Any]) -> str:
         """Handle general queries using DefaultAgent"""
@@ -212,7 +212,7 @@ class MultiAgentTravelOrchestrator:
         )
         
         result = crew.kickoff()
-        return f"💡 **THÔNG TIN DU LỊCH TỔNG QUÁT**\\n\\n{str(result)}"
+        return f"💡 **THÔNG TIN DU LỊCH TỔNG QUÁT**\n\n{str(result)}"
     
     def _handle_weather_query(self, query: str, context: Dict[str, Any]) -> str:
         """Handle weather queries using weather tools directly"""
@@ -235,7 +235,7 @@ class MultiAgentTravelOrchestrator:
                 days=3  # Default to 3-day forecast
             )
             
-            return f"🌤️ **THỜI TIẾT TẠI {destination.upper()}**\\n\\n{weather_result}"
+            return f"🌤️ **THỜI TIẾT TẠI {destination.upper()}**\n\n{weather_result}"
             
         except Exception as e:
             print(f"❌ Weather service error: {e}")
@@ -300,18 +300,18 @@ class MultiAgentTravelOrchestrator:
         print("   📅 Lịch trình: 'Lập lịch đi Hội An 3 ngày'")
         print("   🏨 Đặt phòng: 'Tìm khách sạn ở Đà Nẵng'")
         print("   💬 Chung: 'Tiền tệ Việt Nam là gì?'")
-        print("\\n⌨️ Gõ 'quit' để thoát, 'history' để xem lịch sử, 'clear' để xóa lịch sử")
+        print("\n⌨️ Gõ 'quit' để thoát, 'history' để xem lịch sử, 'clear' để xóa lịch sử")
         print("-"*80)
         
         while True:
             try:
-                user_input = input("\\n👤 Bạn: ").strip()
+                user_input = input("\n👤 Bạn: ").strip()
                 
                 if user_input.lower() in ['quit', 'exit', 'thoát']:
                     print("👋 Cảm ơn bạn đã sử dụng hệ thống. Chúc bạn có chuyến đi vui vẻ!")
                     break
                 elif user_input.lower() in ['history', 'lịch sử']:
-                    print("\\n📚", self.get_conversation_history())
+                    print("\n📚", self.get_conversation_history())
                     continue
                 elif user_input.lower() in ['clear', 'xóa']:
                     self.clear_conversation()
@@ -320,15 +320,15 @@ class MultiAgentTravelOrchestrator:
                     print("⚠️ Vui lòng nhập câu hỏi của bạn.")
                     continue
                 
-                print("\\n🤖 Hệ thống:")
+                print("\n🤖 Hệ thống:")
                 response = self.process_query(user_input)
-                print(f"\\n{response}")
+                print(f"\n{response}")
                 
             except KeyboardInterrupt:
-                print("\\n\\n👋 Tạm biệt!")
+                print("\n\n👋 Tạm biệt!")
                 break
             except Exception as e:
-                print(f"\\n❌ Đã có lỗi xảy ra: {e}")
+                print(f"\n❌ Đã có lỗi xảy ra: {e}")
 
 
 # Convenience function for the existing system
