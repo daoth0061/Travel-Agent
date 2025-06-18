@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-06-18T20:08:29.244465",
+  "total_accuracy": 0.8064516129032258,
+  "intent_metrics": {
+    "eat": {
+      "correct": 45,
+      "total": 49
+    },
+    "visit": {
+      "correct": 42,
+      "total": 50
+    },
+    "plan": {
+      "correct": 44,
+      "total": 50
+    },
+    "book": {
+      "correct": 46,
+      "total": 49
+    },
+    "other": {
+      "correct": 38,
+      "total": 50
+    },
+    "weather": {
+      "correct": 0,
+      "total": 0
+    }
+  },
+  "confusion_matrix": {
+    "eat": {
+      "eat": 45,
+      "visit": 3,
+      "plan": 1,
+      "book": 0,
+      "other": 0,
+      "weather": 0
+    },
+    "visit": {
+      "eat": 3,
+      "visit": 42,
+      "plan": 5,
+      "book": 0,
+      "other": 0,
+      "weather": 0
+    },
+    "plan": {
+      "eat": 1,
+      "visit": 8,
+      "plan": 44,
+      "book": 0,
+      "other": 0,
+      "weather": 0
+    },
+    "book": {
+      "eat": 0,
+      "visit": 1,
+      "plan": 3,
+      "book": 46,
+      "other": 0,
+      "weather": 0
+    },
+    "other": {
+      "eat": 2,
+      "visit": 2,
+      "plan": 28,
+      "book": 4,
+      "other": 38,
+      "weather": 11
+    },
+    "weather": {
+      "eat": 0,
+      "visit": 0,
+      "plan": 0,
+      "book": 0,
+      "other": 0,
+      "weather": 0
+    }
+  }
+}

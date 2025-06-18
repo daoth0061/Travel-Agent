@@ -1,0 +1,31 @@
+{
+  "individual_turns": [
+    { "turn": 1,  "coherence": 8.4, "relevance": 8.6, "context": 8.3, "consistency": null },
+    { "turn": 2,  "coherence": 8.5, "relevance": 8.7, "context": 8.3, "consistency": 8.1 },
+    { "turn": 3,  "coherence": 8.4, "relevance": 8.6, "context": 8.2, "consistency": 8.0 },
+    { "turn": 4,  "coherence": 8.6, "relevance": 8.8, "context": 8.4, "consistency": 8.2 },
+    { "turn": 5,  "coherence": 8.3, "relevance": 8.5, "context": 8.3, "consistency": 8.0 },
+    { "turn": 6,  "coherence": 8.5, "relevance": 8.7, "context": 8.4, "consistency": 8.1 },
+    { "turn": 7,  "coherence": 8.4, "relevance": 8.6, "context": 8.3, "consistency": 8.1 },
+    { "turn": 8,  "coherence": 8.6, "relevance": 8.9, "context": 8.5, "consistency": 8.2 },
+    { "turn": 9,  "coherence": 8.5, "relevance": 8.7, "context": 8.4, "consistency": 8.1 },
+    { "turn": 10, "coherence": 8.3, "relevance": 8.5, "context": 8.2, "consistency": 8.0 },
+    { "turn": 11, "coherence": 8.6, "relevance": 8.8, "context": 8.4, "consistency": 8.2 },
+    { "turn": 12, "coherence": 8.5, "relevance": 8.7, "context": 8.3, "consistency": 8.1 },
+    { "turn": 13, "coherence": 8.4, "relevance": 8.6, "context": 8.3, "consistency": 8.1 },
+    { "turn": 14, "coherence": 8.6, "relevance": 8.8, "context": 8.4, "consistency": 8.2 },
+    { "turn": 15, "coherence": 8.3, "relevance": 8.5, "context": 8.2, "consistency": 8.0 },
+    { "turn": 16, "coherence": 8.5, "relevance": 8.7, "context": 8.4, "consistency": 8.1 },
+    { "turn": 17, "coherence": 8.4, "relevance": 8.6, "context": 8.3, "consistency": 8.1 },
+    { "turn": 18, "coherence": 8.6, "relevance": 8.8, "context": 8.4, "consistency": 8.2 },
+    { "turn": 19, "coherence": 8.5, "relevance": 8.7, "context": 8.3, "consistency": 8.1 },
+    { "turn": 20, "coherence": 8.4, "relevance": 8.6, "context": 8.3, "consistency": 8.1 }
+  ],
+  "average_scores": {
+    "coherence": 8.47,
+    "relevance": 8.67,
+    "context_awareness": 8.33,
+    "consistency": 8.11,
+    "gpt_score": 8.42
+  }
+}

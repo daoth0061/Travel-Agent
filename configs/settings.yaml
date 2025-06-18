@@ -1,9 +1,10 @@
 models:
   gpt_35: "gpt-3.5-turbo"
   gpt_4o_mini: "gpt-4o-mini"
+  claude_evaluator: "claude-3-sonnet-20240229"
 rag_config:
   chunk_size: 500
   chunk_overlap: 50
   top_k: 5
   embedding_model: "text-embedding-3-small"
-chroma_path: "data/chroma_travel"
+chroma_path: "chroma_db_archive"

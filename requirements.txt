@@ -10,3 +10,4 @@ thefuzz[speedup]  # For fuzzy string matching (destination detection)
 dateparser  # For intelligent date parsing
 pandas  # For data manipulation
 gradio  # For chatbot UI interface
+
