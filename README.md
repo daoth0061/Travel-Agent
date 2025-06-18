@@ -84,6 +84,7 @@ Move or copy the downloaded `chroma_travel_db/` folder into the `data/` director
    ```bash
    WEATHERAPI_KEY=your_weatherapi_com_key_here
    OPENAI_API_KEY=your_openai_api_key_here
+   SERPAPI_KEY=your_serpapi_key_here    # API for booking functionality
    ```
 
 ### 3. Install Dependencies
