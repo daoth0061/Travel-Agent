@@ -64,7 +64,7 @@ The ItineraryAgent implements two advanced planning scenarios:
 ### 1. Download Required Dataset
 
 **Download the `chroma_travel_db/` folder**  
-Download the [`chroma_travel_db/` folder from Google Drive`](https://drive.google.com/your_link_here).
+Download the [`chroma_travel_db/` folder from Google Drive](https://drive.google.com/drive/folders/1a4bbYWOFs4cznYgYPEZuWYXj7m6bk-Lk).
 
 **Place the folder in the correct location**  
 Move or copy the downloaded `chroma_travel_db/` folder into the `data/` directory of this project.
@@ -127,35 +127,21 @@ project_root/
 ├── agents/                  # AI agents for different tasks
 │   ├── itinerary_agent.py  # Enhanced with weather integration
 │   ├── location_agent.py   # Location recommendations
-│   ├── food_agent.py      # Food recommendations
-│   └── orchestrator.py    # Main coordination
+│   ├── food_agent.py       # Food recommendations
+│   └── orchestrator.py     # Main coordination
 ├── tools/                  # AI tools and utilities
 │   ├── utils_tool.py      # Weather tool (WeatherAPI.com)
 │   ├── rag_tools.py       # RAG search tools
 │   └── vector_store.py    # Vector database management
 ├── data/                   # Data storage
-│   └── chroma_travel_db/   # Vector database (download required)
+│   └── chroma_travel_db/  # Vector database (download required)
 ├── core/                   # Core system files
-│   ├── main.py            # Main application entry
-│   ├── config.py          # Configuration management
-│   └── utils.py           # Utility functions
+│   ├── main.py           # Main application entry
+│   ├── config.py         # Configuration management
+│   └── utils.py          # Utility functions
 ├── test_weather.py        # Weather tool testing script
 └── requirements.txt       # Python dependencies
 ```
-
-## 🧪 Testing Weather Integration
-
-Run the weather tool test to verify integration:
-
-```bash
-python test_weather.py
-```
-
-This will test:
-- Current weather fetching
-- Multi-day forecast retrieval
-- Hour-specific weather queries
-- Complete daily weather schedules
 
 ## 🔧 Usage Examples
 
@@ -199,38 +185,19 @@ orchestrator.process_query("Thay đổi thành 2 ngày được không?")
 orchestrator.process_query("Thêm hoạt động trekking vào lịch trình")
 ```
 
-## 🧪 System Workflow
+## 🧪 Testing Weather Integration
 
-### For Itinerary Planning Queries:
+Run the weather tool test to verify integration:
 
-1. **Parameter Extraction**:
-   - 🎯 Destination detection (fuzzy matching for misspellings)
-   - ⏱️ Trip length detection (numbers + Vietnamese words)
-   - 📅 Date/time detection (absolute, relative, natural language)
+```bash
+python test_weather.py
+```
 
-2. **Resource Calculation**:
-   - 🍽️ Required food recommendations (2 × days)
-   - 🏛️ Required location recommendations (based on overwhelm logic)
-
-3. **Agent Coordination**:
-   - 📞 Call FoodAgent for cuisine recommendations
-   - 📞 Call LocationAgent for attraction recommendations
-   - 🔄 Synthesize information into coherent itinerary
-
-4. **Weather Enhancement** (if dates provided):
-   - 🌤️ Fetch real-time weather for each day
-   - ⏰ Get hourly forecasts for key time periods
-   - 🎯 Optimize activities based on weather conditions
-   - 💡 Generate weather-specific recommendations
-
-The system will:
-1. 🎯 Classify your intent automatically
-2. 📚 Use conversation context if it's a follow-up
-3. 🤖 Route to the appropriate specialist agent
-4. 🔍 Search relevant information using RAG
-5. 🌤️ Integrate real-time weather data (if applicable)
-6. 📋 Create optimized recommendations
-7. 💾 Remember the conversation for future queries
+This will test:
+- Current weather fetching
+- Multi-day forecast retrieval
+- Hour-specific weather queries
+- Complete daily weather schedules
 
 ## 🌍 Supported Locations
 
